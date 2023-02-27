@@ -29,6 +29,9 @@ az storage account update --name $STORAGE_ACCOUNT_NAME --resource-group $AKS_RG 
 #   NFS    #
 ############
 
+# Generate NFS SC and PV files from CLI
+run _sc-temp-NFS.yaml AND _pv-temp-NFS.yaml 
+
 # NFS - Deploy storage class
 kubectl apply -f sc-azurefile-csi-nfs.yaml
 kubectl describe sc/azurefile-csi-nfs-jv
