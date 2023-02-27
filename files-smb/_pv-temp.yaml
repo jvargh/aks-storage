@@ -1,0 +1,36 @@
+# https://learn.microsoft.com/en-us/azure/aks/azure-csi-files-storage-provision#mount-file-share-as-a-persistent-volume
+@"
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-azurefile-jv
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain  # if set as "Delete" file share would be removed in pvc deletion
+  storageClassName: azurefile-csi-jv
+  csi:
+    driver: file.csi.azure.com
+    readOnly: false
+    # make sure volumeid is unique for every identical share in the cluster
+    # the # character is reserved for internal use
+    volumeHandle: $STORAGE_ACCOUNT_NAME-$SHARE_NAME
+    volumeAttributes:
+      resourceGroup: $AKS_RG  # optional, only set this when storage account is not in the same resource group as agent node
+      storageAccount: $STORAGE_ACCOUNT_NAME
+      shareName: $SHARE_NAME
+    # nodeStageSecretRef:
+    #   name: azure-secret
+    #   namespace: default
+  mountOptions:
+    - dir_mode=0777
+    - file_mode=0777
+    - uid=0
+    - gid=0
+    - mfsymlinks
+    - cache=strict
+    - nosharesock
+    - nobrl
+"@ > pv-azurefile-csi.yaml

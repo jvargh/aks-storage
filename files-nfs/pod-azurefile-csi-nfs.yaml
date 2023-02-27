@@ -1,0 +1,74 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  labels:
+    app: azfile-nfs-app
+  name: az-files-nfs-pod
+spec:
+  containers:
+  - name: mypod
+    # image: mcr.microsoft.com/oss/nginx/nginx:1.15.5-alpine
+    image: mcr.microsoft.com/oss/nginx/nginx:1.19.5
+    # command:
+    #   - "/bin/bash"
+    #   - "-c"
+    #   - set -euo pipefail; while true; do echo $(date) >> /mnt/azurefile/outfile; sleep 1; done
+    volumeMounts:
+    - mountPath: "/mnt/azure"
+      name: volume
+  volumes:
+    - name: volume
+      persistentVolumeClaim:
+        claimName: pvc-azurefile-nfs-jv
+
+
+# apiVersion: apps/v1
+# kind: StatefulSet
+# metadata:
+#   name: statefulset-azfile-nfs-app
+#   labels:
+#     app: nginx
+# spec:
+#   podManagementPolicy: Parallel  # default is OrderedReady
+#   serviceName: statefulset-azfile-nfs-app
+#   replicas: 1
+#   template:
+#     metadata:
+#       labels:
+#         app: nginx
+#     spec:
+#       nodeSelector:
+#         "kubernetes.io/os": linux
+#       containers:
+#         - name: statefulset-azfile-nfs-app
+#           image: mcr.microsoft.com/oss/nginx/nginx:1.19.5
+#           resources:
+#             requests:
+#               cpu: 100m
+#               memory: 128Mi
+#             limits:
+#               cpu: 250m
+#               memory: 256Mi          
+#           command:
+#             - "/bin/bash"
+#             - "-c"
+#             - set -euo pipefail; while true; do echo $(date) >> /mnt/azurefile/outfile; sleep 1; done
+#           volumeMounts:
+#             - name: persistent-storage
+#               mountPath: /mnt/azurefile
+#   updateStrategy:
+#     type: RollingUpdate
+#   selector:
+#     matchLabels:
+#       app: nginx
+#   volumeClaimTemplates:
+#     - metadata:
+#         name: persistent-storage
+#         annotations:
+#           volume.beta.kubernetes.io/storage-class: azurefile-csi-nfs-jv
+#       spec:
+#         accessModes: ["ReadWriteMany"]
+#         resources:
+#           requests:
+#             storage: 1Gi
+
